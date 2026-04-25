@@ -1,0 +1,54 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up DWD Weather AI",
+        "description": "Uses Bright Sky (DWD-backed) weather data for your coordinates.",
+        "data": {
+          "name": "Name",
+          "latitude": "Latitude",
+          "longitude": "Longitude",
+          "scan_interval_minutes": "Update interval (minutes)"
+        }
+      }
+    },
+    "error": {},
+    "abort": {
+      "already_configured": "This location is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "DWD Weather AI options",
+        "data": {
+          "scan_interval_minutes": "Update interval (minutes)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "weather": {
+      "weather": {
+        "name": "Weather"
+      }
+    },
+    "sensor": {
+      "rain_yesterday": {
+        "name": "Rain yesterday"
+      },
+      "rain_2_days_ago": {
+        "name": "Rain 2 days ago"
+      },
+      "rain_next_day": {
+        "name": "Expected rain tomorrow"
+      },
+      "rain_next_7_days": {
+        "name": "Expected rain next 7 days"
+      },
+      "weather_trend_7_days": {
+        "name": "Weather trend next 7 days"
+      }
+    }
+  }
+}
