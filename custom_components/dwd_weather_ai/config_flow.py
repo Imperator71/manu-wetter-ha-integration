@@ -30,14 +30,19 @@ STEP_USER_SCHEMA = vol.Schema(
     }
 )
 
-OPTIONS_SCHEMA = vol.Schema(
-    {
-        vol.Optional(
-            CONF_SCAN_INTERVAL_MINUTES,
-            default=DEFAULT_SCAN_INTERVAL_MINUTES,
-        ): vol.All(vol.Coerce(int), vol.Range(min=MIN_SCAN_INTERVAL_MINUTES, max=MAX_SCAN_INTERVAL_MINUTES)),
-    }
-)
+def _build_options_schema(default_scan_interval: int) -> vol.Schema:
+    """Build options schema with a validated default."""
+    return vol.Schema(
+        {
+            vol.Optional(
+                CONF_SCAN_INTERVAL_MINUTES,
+                default=default_scan_interval,
+            ): vol.All(
+                vol.Coerce(int),
+                vol.Range(min=MIN_SCAN_INTERVAL_MINUTES, max=MAX_SCAN_INTERVAL_MINUTES),
+            ),
+        }
+    )
 
 
 class DwdWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -72,7 +77,7 @@ class DwdWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return DwdWeatherOptionsFlow(config_entry)
 
 
-class DwdWeatherOptionsFlow(config_entries.OptionsFlow):
+class DwdWeatherOptionsFlow(config_entries.OptionsFlowWithReload):
     """Handle options for DWD Weather AI."""
 
     def __init__(self, config_entry):
@@ -83,23 +88,15 @@ class DwdWeatherOptionsFlow(config_entries.OptionsFlow):
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
+        default_scan_interval = self.config_entry.options.get(
+            CONF_SCAN_INTERVAL_MINUTES,
+            self.config_entry.data.get(
+                CONF_SCAN_INTERVAL_MINUTES,
+                DEFAULT_SCAN_INTERVAL_MINUTES,
+            ),
+        )
+
         return self.async_show_form(
             step_id="init",
-            data_schema=vol.Schema(
-                {
-                    vol.Optional(
-                        CONF_SCAN_INTERVAL_MINUTES,
-                        default=self.config_entry.options.get(
-                            CONF_SCAN_INTERVAL_MINUTES,
-                            self.config_entry.data.get(
-                                CONF_SCAN_INTERVAL_MINUTES,
-                                DEFAULT_SCAN_INTERVAL_MINUTES,
-                            ),
-                        ),
-                    ): vol.All(
-                        vol.Coerce(int),
-                        vol.Range(min=MIN_SCAN_INTERVAL_MINUTES, max=MAX_SCAN_INTERVAL_MINUTES),
-                    )
-                }
-            ),
+            data_schema=_build_options_schema(default_scan_interval),
         )
